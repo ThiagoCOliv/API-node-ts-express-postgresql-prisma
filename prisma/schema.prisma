@@ -1,0 +1,44 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Club {
+  id          String   @id @default(cuid())
+  name        String
+  city        String
+  country     String
+  league      String
+  foundedYear Int      @map("founded_year")
+  colors      String[]
+  deletedAt   DateTime? @map("deleted_at")
+
+  // Relations
+  players     Player[]
+
+  @@map("clubs")
+}
+
+model Player {
+  id       String   @id @default(cuid())
+  name     String
+  position String
+  number   Int
+  age      Int
+  country  String
+  clubId   String   @map("club_id")
+  deletedAt DateTime? @map("deleted_at")
+
+  // Relations
+  club     Club     @relation(fields: [clubId], references: [id])
+
+  @@map("players")
+}
