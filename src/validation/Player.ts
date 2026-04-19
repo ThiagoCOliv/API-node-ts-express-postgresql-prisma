@@ -1,6 +1,5 @@
 import { z } from 'zod';
 
-// Player creation schema (without id, timestamps)
 export const CreatePlayerSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   position: z.enum(['Goalkeeper', 'Defender', 'Midfielder', 'Forward'], {
@@ -12,10 +11,8 @@ export const CreatePlayerSchema = z.object({
   clubId: z.string().min(1, 'Club ID is required'),
 });
 
-// Player update schema (all fields optional)
 export const UpdatePlayerSchema = CreatePlayerSchema.partial();
 
-// Player response schema (includes id, excludes deletedAt)
 export const PlayerResponseSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -26,7 +23,6 @@ export const PlayerResponseSchema = z.object({
   clubId: z.string(),
 });
 
-// Player with club info response schema
 export const PlayerWithClubResponseSchema = PlayerResponseSchema.extend({
   club: z.object({
     id: z.string(),
@@ -36,7 +32,6 @@ export const PlayerWithClubResponseSchema = PlayerResponseSchema.extend({
   }),
 });
 
-// Type exports
 export type CreatePlayerInput = z.infer<typeof CreatePlayerSchema>;
 export type UpdatePlayerInput = z.infer<typeof UpdatePlayerSchema>;
 export type PlayerResponse = z.infer<typeof PlayerResponseSchema>;

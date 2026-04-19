@@ -1,5 +1,5 @@
-// Player interface
-export interface Player {
+export interface Player 
+{
   id: string;
   name: string;
   position: string;
@@ -10,5 +10,4 @@ export interface Player {
   deletedAt?: Date | null;
 }
 
-// Re-export validation types
 export type { CreatePlayerInput, UpdatePlayerInput, PlayerResponse, PlayerWithClubResponse } from '../validation/Player';
