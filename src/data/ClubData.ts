@@ -1,17 +1,17 @@
-import { prisma } from './DatabaseConnection';
+import { prismaClient } from './DatabaseConnection';
 import { Club } from '../models/Club';
 
 export class ClubData 
 {
   async create(data: Omit<Club, 'id' | 'deletedAt'>): Promise<Club> 
   {
-    return prisma.club.create({
+    return prismaClient.clubs.create({
       data: {
         name: data.name,
         city: data.city,
         country: data.country,
         league: data.league,
-        foundedYear: data.foundedYear,
+        founded_year: data.founded_year,
         colors: data.colors,
       },
     });
@@ -19,8 +19,8 @@ export class ClubData
 
   async findAll(limit: number, offset: number): Promise<Club[]> 
   {
-    return prisma.club.findMany({
-      where: { deletedAt: null },
+    return prismaClient.clubs.findMany({
+      where: { deleted_at: null },
       take: limit,
       skip: offset,
       orderBy: { name: 'asc' },
@@ -29,49 +29,49 @@ export class ClubData
 
   async count(): Promise<number> 
   {
-    return prisma.club.count({ where: { deletedAt: null } });
+    return prismaClient.clubs.count({ where: { deleted_at: null } });
   }
 
-  async findById(id: string): Promise<Club | null> 
+  async findById(id: number): Promise<Club | null> 
   {
-    return prisma.club.findFirst({
+    return prismaClient.clubs.findFirst({
       where: {
         id,
-        deletedAt: null,
+        deleted_at: null,
       },
     });
   }
 
   // Update club by ID
-  async update(id: string, data: Partial<Omit<Club, 'id' | 'deletedAt'>>): Promise<Club | null> 
+  async update(id: number, data: Partial<Omit<Club, 'id' | 'deleted_at'>>): Promise<Club | null> 
   {
     try 
     {
-      return await prisma.club.update({
+      return await prismaClient.clubs.update({
         where: { id },
         data,
       });
     } catch (error) { return null; }
   }
 
-  async delete(id: string): Promise<boolean> 
+  async delete(id: number): Promise<boolean> 
   {
     try 
     {
-      await prisma.club.update({
+      await prismaClient.clubs.update({
         where: { id },
-        data: { deletedAt: new Date() },
+        data: { deleted_at: new Date() },
       });
       return true;
     } catch (error) { return false; }
   }
 
-  async exists(id: string): Promise<boolean> 
+  async exists(id: number): Promise<boolean> 
   {
-    const count = await prisma.club.count({
+    const count = await prismaClient.clubs.count({
       where: {
         id,
-        deletedAt: null,
+        deleted_at: null,
       },
     });
     return count > 0;
@@ -79,7 +79,7 @@ export class ClubData
 
   async findByNameAndCountry(name: string, country: string): Promise<Club[]> 
   {
-    return prisma.club.findMany({
+    return prismaClient.clubs.findMany({
       where: {
         name: {
           equals: name,
@@ -89,7 +89,7 @@ export class ClubData
           equals: country,
           mode: 'insensitive',
         },
-        deletedAt: null,
+        deleted_at: null,
       },
     });
   }

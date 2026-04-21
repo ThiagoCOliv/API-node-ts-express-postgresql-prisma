@@ -6,8 +6,8 @@ export interface Player
   number: number;
   birthday: Date;
   country: string;
-  clubId: number;
-  deletedAt?: Date | null;
+  club_id: number;
+  deleted_at?: Date | null;
 }
 
 export type { CreatePlayerInput, UpdatePlayerInput, PlayerResponse, PlayerWithClubResponse } from '../validation/Player';

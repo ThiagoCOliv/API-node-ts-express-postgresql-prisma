@@ -36,10 +36,13 @@ export class ClubService
 
   async getClubById(id: string): Promise<Club & { players: any[] }> 
   {
-    const club = await this.clubRepository.findById(id);
+    const clubId = parseInt(id, 10);
+    if (isNaN(clubId)) throw new ValidationError('Invalid club ID');
+
+    const club = await this.clubRepository.findById(clubId);
     if (!club) throw new NotFoundError('Club');
 
-    const { players } = await this.playerRepository.findByClub(id, 100, 0);
+    const { players } = await this.playerRepository.findByClub(clubId, 100, 0);
 
     return {
         ...club,
@@ -49,16 +52,19 @@ export class ClubService
 
   async updateClub(id: string, data: UpdateClubInput): Promise<Club> 
   {
-    const existingClub = await this.clubRepository.findById(id);
+    const clubId = parseInt(id, 10);
+    if (isNaN(clubId)) throw new ValidationError('Invalid club ID');
+
+    const existingClub = await this.clubRepository.findById(clubId);
     if (!existingClub) throw new NotFoundError('Club');
 
     if (data.name) 
     {
-      const nameExists = await this.checkNameExists(data.name, data.country || existingClub.country, id);
+      const nameExists = await this.checkNameExists(data.name, data.country || existingClub.country, clubId);
       if (nameExists) throw new ConflictError('A club with this name already exists in this country');
     }
 
-    const updatedClub = await this.clubRepository.update(id, data);
+    const updatedClub = await this.clubRepository.update(clubId, data);
     if (!updatedClub) throw new NotFoundError('Club');
 
     return updatedClub;
@@ -66,9 +72,12 @@ export class ClubService
 
   async deleteClub(id: string): Promise<void> 
   {
-    const success = await this.clubRepository.delete(id);
+    const clubId = parseInt(id, 10);
+    if (isNaN(clubId)) throw new ValidationError('Invalid club ID');
+
+    const success = await this.clubRepository.delete(clubId);
     if (!success) throw new NotFoundError('Club');
   }
 
-  private async checkNameExists(name: string, country: string, excludeId?: string): Promise<boolean> { return this.clubRepository.checkNameExists(name, country, excludeId); }
+  private async checkNameExists(name: string, country: string, excludeId?: number): Promise<boolean> { return this.clubRepository.checkNameExists(name, country, excludeId); }
 }

@@ -1,16 +1,9 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../../prisma/..generated/prisma/client';
+import { prisma } from '../utils/prisma';
 
 class DatabaseConnection 
 {
   private static instance: DatabaseConnection;
-  private prisma: PrismaClient;
-
-  private constructor() 
-  {
-    this.prisma = new PrismaClient({
-      log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
-    });
-  }
 
   public static getInstance(): DatabaseConnection 
   {
@@ -19,13 +12,13 @@ class DatabaseConnection
     return DatabaseConnection.instance;
   }
 
-  public getClient(): PrismaClient { return this.prisma; }
+  public getClient(): PrismaClient { return prisma; }
 
   public async connect(): Promise<void> 
   {
     try 
     {
-      await this.prisma.$connect();
+      await prisma.$connect();
       console.log('✅ Database connected successfully');
     } 
     catch (error) 
@@ -39,7 +32,7 @@ class DatabaseConnection
   {
     try 
     {
-      await this.prisma.$disconnect();
+      await prisma.$disconnect();
       console.log('✅ Database disconnected successfully');
     } 
     catch (error) 
@@ -53,7 +46,7 @@ class DatabaseConnection
   {
     try 
     {
-      await this.prisma.$queryRaw`SELECT 1`;
+      await prisma.$queryRaw`SELECT 1`;
       return true;
     } 
     catch (error) 
@@ -66,4 +59,4 @@ class DatabaseConnection
 
 export const databaseConnection = DatabaseConnection.getInstance();
 
-export const prisma = databaseConnection.getClient();
+export const prismaClient = databaseConnection.getClient();

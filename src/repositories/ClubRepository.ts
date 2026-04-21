@@ -17,15 +17,15 @@ export class ClubRepository
     return { clubs, total };
   }
 
-  async findById(id: string): Promise<Club | null> { return this.clubData.findById(id); }
+  async findById(id: number): Promise<Club | null> { return this.clubData.findById(id); }
 
-  async update(id: string, data: Partial<Omit<Club, 'id' | 'deletedAt'>>): Promise<Club | null> { return this.clubData.update(id, data); }
+  async update(id: number, data: Partial<Omit<Club, 'id' | 'deletedAt'>>): Promise<Club | null> { return this.clubData.update(id, data); }
 
-  async delete(id: string): Promise<boolean> { return this.clubData.delete(id); }
+  async delete(id: number): Promise<boolean> { return this.clubData.delete(id); }
 
-  async exists(id: string): Promise<boolean> { return this.clubData.exists(id); }
+  async exists(id: number): Promise<boolean> { return this.clubData.exists(id); }
 
-  async checkNameExists(name: string, country: string, excludeId?: string): Promise<boolean> 
+  async checkNameExists(name: string, country: string, excludeId?: number): Promise<boolean> 
   {
     const clubs = await this.clubData.findByNameAndCountry(name, country);
     return excludeId ? clubs.some(club => club.id !== excludeId) : clubs.length > 0;

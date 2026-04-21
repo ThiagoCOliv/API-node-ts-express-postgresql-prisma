@@ -1,31 +1,31 @@
-import { prisma } from './DatabaseConnection';
+import { prismaClient } from './DatabaseConnection';
 import { Player } from '../models/Player';
 
 export class PlayerData 
 {
   async create(data: Omit<Player, 'id' | 'deletedAt'>): Promise<Player> 
   {
-    return prisma.player.create({
+    return prismaClient.players.create({
       data: {
         name: data.name,
         position: data.position,
         number: data.number,
-        age: data.age,
+        birthday: data.birthday,
         country: data.country,
-        clubId: data.clubId,
+        club_id: data.club_id,
       },
     });
   }
 
   async findAll(limit: number, offset: number): Promise<Player[]> 
   {
-    return prisma.player.findMany({
-      where: { deletedAt: null },
+    return prismaClient.players.findMany({
+      where: { deleted_at: null },
       take: limit,
       skip: offset,
       orderBy: { name: 'asc' },
       include: {
-        club: {
+        Clubs: {
           select: {
             id: true,
             name: true,
@@ -39,20 +39,20 @@ export class PlayerData
 
   async count(): Promise<number> 
   {
-    return prisma.player.count({
-      where: { deletedAt: null },
+    return prismaClient.players.count({
+      where: { deleted_at: null },
     });
   }
 
-  async findById(id: string): Promise<Player | null> 
+  async findById(id: number): Promise<Player | null> 
   {
-    return prisma.player.findFirst({
+    return prismaClient.players.findFirst({
       where: {
         id,
-        deletedAt: null,
+        deleted_at: null,
       },
       include: {
-        club: {
+        Clubs: {
           select: {
             id: true,
             name: true,
@@ -64,18 +64,18 @@ export class PlayerData
     });
   }
 
-  async findByClubId(clubId: string, limit: number, offset: number): Promise<Player[]> 
+  async findByClubId(club_id: number, limit: number, offset: number): Promise<Player[]> 
   {
-    return prisma.player.findMany({
+    return prismaClient.players.findMany({
       where: {
-        clubId,
-        deletedAt: null,
+        club_id,
+        deleted_at: null,
       },
       take: limit,
       skip: offset,
       orderBy: { number: 'asc' },
       include: {
-        club: {
+        Clubs: {
           select: {
             id: true,
             name: true,
@@ -87,61 +87,61 @@ export class PlayerData
     });
   }
 
-  async countByClubId(clubId: string): Promise<number> 
+  async countByClubId(club_id: number): Promise<number> 
   {
-    return prisma.player.count({
+    return prismaClient.players.count({
       where: {
-        clubId,
-        deletedAt: null,
+        club_id,
+        deleted_at: null,
       },
     });
   }
 
-  async update(id: string, data: Partial<Omit<Player, 'id' | 'deletedAt'>>): Promise<Player | null> 
+  async update(id: number, data: Partial<Omit<Player, 'id' | 'deleted_at'>>): Promise<Player | null> 
   {
     try 
     {
-      return await prisma.player.update({
+      return await prismaClient.players.update({
         where: { id },
         data,
       });
     } catch (error) { return null; }
   }
 
-  async delete(id: string): Promise<boolean> 
+  async delete(id: number): Promise<boolean> 
   {
     try 
     {
-      await prisma.player.update({
+      await prismaClient.players.update({
         where: { id },
-        data: { deletedAt: new Date() },
+        data: { deleted_at: new Date() },
       });
       return true;
     } catch (error) { return false; }
   }
 
-  async exists(id: string): Promise<boolean> 
+  async exists(id: number): Promise<boolean> 
   {
-    const count = await prisma.player.count({
+    const count = await prismaClient.players.count({
       where: {
         id,
-        deletedAt: null,
+        deleted_at: null,
       },
     });
     return count > 0;
   }
 
-  async findByClubIdAndNumber(clubId: string, number: number, excludePlayerId?: string): Promise<Player[]> 
+  async findByClubIdAndNumber(club_id: number, number: number, excludePlayerId?: number): Promise<Player[]> 
   {
     const whereClause: any = {
-      clubId,
+      club_id,
       number,
-      deletedAt: null,
+      deleted_at: null,
     };
 
     if (excludePlayerId) whereClause.id = { not: excludePlayerId };
 
-    return prisma.player.findMany({
+    return prismaClient.players.findMany({
       where: whereClause,
     });
   }

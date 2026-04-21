@@ -17,9 +17,9 @@ export class PlayerRepository
     return { players, total };
   }
 
-  async findById(id: string): Promise<Player | null> { return this.playerData.findById(id); }
+  async findById(id: number): Promise<Player | null> { return this.playerData.findById(id); }
 
-  async findByClub(clubId: string, limit: number = 10, offset: number = 0): Promise<{ players: Player[]; total: number }> {
+  async findByClub(clubId: number, limit: number = 10, offset: number = 0): Promise<{ players: Player[]; total: number }> {
     const [players, total] = await Promise.all([
       this.playerData.findByClubId(clubId, limit, offset),
       this.playerData.countByClubId(clubId),
@@ -28,13 +28,13 @@ export class PlayerRepository
     return { players, total };
   }
 
-  async update(id: string, data: Partial<Omit<Player, 'id' | 'deletedAt'>>): Promise<Player | null> { return this.playerData.update(id, data); }
+  async update(id: number, data: Partial<Omit<Player, 'id' | 'deletedAt'>>): Promise<Player | null> { return this.playerData.update(id, data); }
 
-  async delete(id: string): Promise<boolean> { return this.playerData.delete(id); }
+  async delete(id: number): Promise<boolean> { return this.playerData.delete(id); }
 
-  async exists(id: string): Promise<boolean> { return this.playerData.exists(id); }
+  async exists(id: number): Promise<boolean> { return this.playerData.exists(id); }
 
-  async checkNumberExistsInClub(clubId: string, number: number, excludePlayerId?: string): Promise<boolean> 
+  async checkNumberExistsInClub(clubId: number, number: number, excludePlayerId?: number): Promise<boolean> 
   {
     const players = await this.playerData.findByClubIdAndNumber(clubId, number, excludePlayerId);
     return players.length > 0;

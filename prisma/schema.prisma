@@ -1,7 +1,34 @@
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "..generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+model Clubs {
+  name         String    @db.Char
+  city         String    @db.Char
+  country      String    @db.Char
+  league       String    @db.Char
+  founded_year Int
+  colors       String[]  @db.Char
+  deleted_at   DateTime? @db.Date
+  id           Int       @id @default(autoincrement())
+  Players      Players[]
+}
+
+model Players {
+  id         Int       @id @default(autoincrement())
+  name       String    @db.Char
+  position   String    @db.Char
+  number     Int
+  birthday   DateTime  @db.Date
+  country    String    @db.Char
+  deleted_at DateTime? @db.Date
+  club_id    Int
+  Clubs      Clubs     @relation(fields: [club_id], references: [id], onDelete: Cascade, map: "club_player")
+
+  @@index([club_id], map: "fki_club_player")
 }

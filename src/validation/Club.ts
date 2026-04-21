@@ -5,7 +5,7 @@ export const CreateClubSchema = z.object({
   city: z.string().min(3, 'City must be at least 3 characters long'),
   country: z.string().min(3, 'Country must be at least 3 characters long'),
   league: z.string().min(3, 'League must be at least 3 characters long'),
-  foundedYear: z.number().int().min(1800).max(new Date().getFullYear()),
+  founded_year: z.number().int().min(1800).max(new Date().getFullYear()),
   colors: z.array(z.string()).min(1, 'At least one color is required'),
 });
 
@@ -17,7 +17,7 @@ export const ClubResponseSchema = z.object({
   city: z.string(),
   country: z.string(),
   league: z.string(),
-  foundedYear: z.number(),
+  founded_year: z.number(),
   colors: z.array(z.string()),
 });
 

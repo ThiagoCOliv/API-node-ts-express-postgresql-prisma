@@ -1,22 +1,25 @@
 import { PlayerRepository } from '../repositories/PlayerRepository';
 import { ClubRepository } from '../repositories/ClubRepository';
-import { CreatePlayerInput, PlayerWithClubResponse, UpdatePlayerInput } from '../validation/Player';
+import { CreatePlayerSchema, PlayerWithClubResponse, UpdatePlayerInput } from '../validation/Player';
 import { NotFoundError, ValidationError, ConflictError } from '../utils/errors';
+import { Player } from '../models/Player';
 
 export class PlayerService 
 {
   constructor(private playerRepository: PlayerRepository,private clubRepository: ClubRepository) {}
 
-  async createPlayer(data: CreatePlayerInput): Promise<PlayerWithClubResponse> 
+  async createPlayer(data: any): Promise<PlayerWithClubResponse> 
   {
-    const clubExists = await this.clubRepository.exists(data.clubId);
+    const validatedData = CreatePlayerSchema.parse(data);
+
+    const clubExists = await this.clubRepository.exists(validatedData.club_id);
     if (!clubExists) throw new NotFoundError('Club');
 
-    const numberExists = await this.playerRepository.checkNumberExistsInClub(data.clubId, data.number);
-    if (numberExists) throw new ConflictError(`Player number ${data.number} is already taken in this club`);
+    const numberExists = await this.playerRepository.checkNumberExistsInClub(validatedData.club_id, validatedData.number);
+    if (numberExists) throw new ConflictError(`Player number ${validatedData.number} is already taken in this club`);
 
-    const player = await this.playerRepository.create(data);
-    const club = await this.clubRepository.findById(player.clubId);
+    const player: Player = await this.playerRepository.create(validatedData);
+    const club = await this.clubRepository.findById(player.club_id);
 
     return {
       ...player,
@@ -35,7 +38,7 @@ export class PlayerService
     const { players, total } = await this.playerRepository.findAll(limit, offset);
 
     const playersWithClubs = await Promise.all(players.map(async (player) => {
-      const club = player.clubId ? await this.clubRepository.findById(player.clubId) : null;
+      const club = player.club_id ? await this.clubRepository.findById(player.club_id) : null;
       return {
         ...player,
         club
@@ -50,10 +53,10 @@ export class PlayerService
 
   async getPlayerById(id: string): Promise<PlayerWithClubResponse> 
   {
-    const player = await this.playerRepository.findById(id);
+    const player = await this.playerRepository.findById(parseInt(id));
     if (!player) throw new NotFoundError('Player');
 
-    const club = player.clubId ? await this.clubRepository.findById(player.clubId) : null;
+    const club = player.club_id ? await this.clubRepository.findById(player.club_id) : null;
 
     return {
         ...player,
@@ -66,15 +69,17 @@ export class PlayerService
     pagination: { limit: number; offset: number; total: number };
   }> 
   {
-    const clubExists = await this.clubRepository.exists(clubId);
+    const clubIdNum = parseInt(clubId);
+
+    const clubExists = await this.clubRepository.exists(clubIdNum);
     if (!clubExists) throw new NotFoundError('Club');
 
     if (limit < 1 || limit > 100) throw new ValidationError('Limit must be between 1 and 100');
     if (offset < 0) throw new ValidationError('Offset must be non-negative');
 
-    const { players, total } = await this.playerRepository.findByClub(clubId, limit, offset);
+    const { players, total } = await this.playerRepository.findByClub(clubIdNum, limit, offset);
     const playersWithClubs = await Promise.all(players.map(async (player) => {
-      const club = player.clubId ? await this.clubRepository.findById(player.clubId) : null;
+      const club = player.club_id ? await this.clubRepository.findById(player.club_id) : null;
       return {
         ...player,
         club
@@ -89,28 +94,30 @@ export class PlayerService
 
   async updatePlayer(id: string, data: UpdatePlayerInput): Promise<PlayerWithClubResponse> 
   {
-    const existingPlayer = await this.playerRepository.findById(id);
+    const playerId = parseInt(id);
+
+    const existingPlayer = await this.playerRepository.findById(playerId);
     if (!existingPlayer) throw new NotFoundError('Player');
 
-    if (data.clubId) 
+    if (data.club_id) 
     {
-      const clubExists = await this.clubRepository.exists(data.clubId);
+      const clubExists = await this.clubRepository.exists(data.club_id);
       if (!clubExists) throw new NotFoundError('Club');
     }
 
-    if (data.number !== undefined || data.clubId) 
+    if (data.number !== undefined || data.club_id) 
     {
-      const targetClubId = data.clubId || existingPlayer.clubId;
+      const targetClubId = data.club_id || existingPlayer.club_id;
       const targetNumber = data.number !== undefined ? data.number : existingPlayer.number;
 
-      const numberExists = await this.playerRepository.checkNumberExistsInClub(targetClubId, targetNumber, id);
+      const numberExists = await this.playerRepository.checkNumberExistsInClub(targetClubId, targetNumber, playerId);
       if (numberExists) throw new ConflictError(`Player number ${targetNumber} is already taken in this club`);
     }
 
-    const updatedPlayer = await this.playerRepository.update(id, data);
+    const updatedPlayer = await this.playerRepository.update(playerId, data);
     if (!updatedPlayer) throw new NotFoundError('Player');
 
-    const club = updatedPlayer.clubId ? await this.clubRepository.findById(updatedPlayer.clubId) : null;
+    const club = updatedPlayer.club_id ? await this.clubRepository.findById(updatedPlayer.club_id) : null;
 
     return {
         ...updatedPlayer,
@@ -120,7 +127,7 @@ export class PlayerService
 
   async deletePlayer(id: string): Promise<void> 
   {
-    const success = await this.playerRepository.delete(id);
+    const success = await this.playerRepository.delete(parseInt(id));
     if (!success) throw new NotFoundError('Player');
   }
 }

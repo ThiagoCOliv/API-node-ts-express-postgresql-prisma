@@ -2,30 +2,28 @@ import { z } from 'zod';
 
 export const CreatePlayerSchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  position: z.enum(['Goalkeeper', 'Defender', 'Midfielder', 'Forward'], {
-    errorMap: () => ({ message: 'Position must be Goalkeeper, Defender, Midfielder, or Forward' }),
-  }),
+  position: z.enum(['Goalkeeper', 'Defender', 'Midfielder', 'Forward']),
   number: z.number().int().min(1).max(99),
-  age: z.number().int().min(16).max(50),
+  birthday: z.date(),
   country: z.string().min(1, 'Country is required'),
-  clubId: z.string().min(1, 'Club ID is required'),
+  club_id: z.number().int().positive({ message: 'Club ID must be a positive integer' }),
 });
 
 export const UpdatePlayerSchema = CreatePlayerSchema.partial();
 
 export const PlayerResponseSchema = z.object({
-  id: z.string(),
+  id: z.number().int().positive(),
   name: z.string(),
   position: z.string(),
   number: z.number(),
-  age: z.number(),
+  birthday: z.date(),
   country: z.string(),
-  clubId: z.string(),
+  club_id: z.number().int().positive({ message: 'Club ID must be a positive integer' }),
 });
 
 export const PlayerWithClubResponseSchema = PlayerResponseSchema.extend({
   club: z.object({
-    id: z.string(),
+    id: z.number().int().positive(),
     name: z.string(),
     city: z.string(),
     country: z.string(),

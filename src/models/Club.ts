@@ -5,9 +5,9 @@ export interface Club
     city: string;
     country: string;
     league: string;
-    foundedYear: number;
+    founded_year: number;
     colors: string[];
-    deletedAt?: Date | null;
+    deleted_at?: Date | null;
 }
 
 export type { CreateClubInput, UpdateClubInput, ClubResponse } from '../validation/Club';
