@@ -1,12 +1,12 @@
 export interface Player 
 {
-  id: string;
+  id: number;
   name: string;
   position: string;
   number: number;
-  age: number;
+  birthday: Date;
   country: string;
-  clubId: string;
+  clubId: number;
   deletedAt?: Date | null;
 }
 
