@@ -1,33 +1,38 @@
-import { ClubData } from '../data/ClubData';
+import * as clubData from '../data/ClubData';
 import { Club } from '../models/Club';
 
-export class ClubRepository 
+async function create(data: Omit<Club, 'id' | 'deletedAt'>): Promise<Club> { return clubData.create(data); }
+
+async function findAll(limit: number = 10, offset: number = 0): Promise<{ clubs: Club[]; total: number }> 
 {
-  constructor(private clubData: ClubData) {}
+  const [clubs, total] = await Promise.all([
+    clubData.findAll(limit, offset),
+    clubData.count(),
+  ]);
 
-  async create(data: Omit<Club, 'id' | 'deletedAt'>): Promise<Club> { return this.clubData.create(data); }
+  return { clubs, total };
+}
 
-  async findAll(limit: number = 10, offset: number = 0): Promise<{ clubs: Club[]; total: number }> 
-  {
-    const [clubs, total] = await Promise.all([
-      this.clubData.findAll(limit, offset),
-      this.clubData.count(),
-    ]);
+async function findById(id: number): Promise<Club | null> { return clubData.findById(id); }
 
-    return { clubs, total };
-  }
+async function update(id: number, data: Partial<Omit<Club, 'id' | 'deletedAt'>>): Promise<Club | null> { return clubData.update(id, data); }
 
-  async findById(id: number): Promise<Club | null> { return this.clubData.findById(id); }
+async function deleteById(id: number): Promise<boolean> { return clubData.deleteById(id); }
 
-  async update(id: number, data: Partial<Omit<Club, 'id' | 'deletedAt'>>): Promise<Club | null> { return this.clubData.update(id, data); }
+async function exists(id: number): Promise<boolean> { return clubData.exists(id); }
 
-  async delete(id: number): Promise<boolean> { return this.clubData.delete(id); }
+async function checkNameExists(name: string, country: string, excludeId?: number): Promise<boolean> 
+{
+  const clubs = await clubData.findByNameAndCountry(name, country);
+  return excludeId ? clubs.some(club => club.id !== excludeId) : clubs.length > 0;
+}
 
-  async exists(id: number): Promise<boolean> { return this.clubData.exists(id); }
-
-  async checkNameExists(name: string, country: string, excludeId?: number): Promise<boolean> 
-  {
-    const clubs = await this.clubData.findByNameAndCountry(name, country);
-    return excludeId ? clubs.some(club => club.id !== excludeId) : clubs.length > 0;
-  }
+export {
+  create,
+  findAll,
+  findById,
+  update,
+  deleteById,
+  exists,
+  checkNameExists
 }

@@ -34,13 +34,15 @@ app.get('/health', async (req, res) => {
 app.use('/clubs', routes.clubRoutes);
 app.use('/players', routes.playerRoutes);
 
-app.use('*', (req, res) => {
+/*
+app.use('(.*)', (req, res) => {
     res.status(404).json({
       error: 'Not Found',
       path: req.path,
       method: req.method,
     });
 });
+*/
 
 app.use(errorHandler);
 
